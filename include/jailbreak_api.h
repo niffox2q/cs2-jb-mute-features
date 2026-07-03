@@ -23,13 +23,13 @@ public:
 
     virtual void MakeRebelPrisoner(int iSlot) = 0;
     virtual void RemoveRebelPrisoner(int iSlot) = 0;
-    virtual bool IsPrisonerRebel(int iSlot) = 0;
+    virtual bool IsPrisonerRebel(int iSlot) = 0; // return false if iSlot < 0 or > 64
     virtual std::vector<int> GetRebelPrisoners() = 0;
     virtual void ClearRebelPrisoners() = 0;
 
     virtual void GivePrisonerFreeday(int iSlot) = 0;
     virtual void RemovePrisonerFreeday(int iSlot) = 0;
-    virtual bool IsPrisonerFreeday(int iSlot) = 0;
+    virtual bool IsPrisonerFreeday(int iSlot) = 0; // return false if iSlot < 0 or > 64
     virtual std::vector<int> GetFreedayPrisoners() = 0;
     virtual void ClearFreedayPrisoners() = 0;
 
@@ -40,7 +40,7 @@ public:
 
     virtual void GiveLR(int iSlot) = 0;     // After obtaining last request auto firing OnGiveLR
     virtual int  GetLRPrisoner() = 0;  // Return player slot
-    virtual void ClearLR(int iSlot) = 0;    // -1 is default
+    virtual void ClearLR() = 0;    // -1 is default
 
     virtual void RegisterGameFeature(SourceMM::PluginId id,const std::string& keyName, const std::string& displayName, std::function<void(int)> onStart) = 0; // false is keyname already taken
     virtual void UnregisterGameFeature(SourceMM::PluginId id,const std::string& keyName) = 0;
@@ -69,4 +69,11 @@ public:
 
     virtual void ClearAllPluginHooks(SourceMM::PluginId id) = 0;
 
+    virtual void GiveRebelImmunity(int iSlot) = 0;
+    virtual void RemoveRebelImmunity(int iSlot) = 0;
+    virtual bool IsRebelImmunity(int iSlot) = 0; // return false if iSlot < 0 or > 64
+
+    virtual void GiveMuteImmunity(int iSlot) = 0;
+    virtual void RemoveMuteImmunity(int iSlot) = 0;
+    virtual bool IsMuteImmunity(int iSlot) = 0; // return false if iSlot < 0 or > 64
 };

@@ -29,8 +29,10 @@ IVIPApi* vip_api;
 // CONFIG VARS
 // =========================================
 
-std::string sAdminPermission;
+std::string sAdminPermission = "@admin/root";
 std::vector<uint64_t> vSteamIDs;
+
+bool g_bImmunityGaved[MAX_PLAYERS+1] = {false};
 
 //==========================================
 // HELPERS
@@ -172,17 +174,37 @@ void jb_mute_features::AllPluginsLoaded() {
     vip_api->VIP_RegisterFeature("jb_mute_immunity",VIP_BOOL,HIDE);
 
 
-    jailbreak_api->OnGivePrisonerMute(g_PLID,[](int iSlot){
-        if (admin_api->HasPermission(iSlot,sAdminPermission.c_str()) ||
-            IsSteamIDSame(iSlot)                                     ||
-            vip_api->VIP_GetClientFeatureBool(iSlot,"jb_mute_immunity")
-        ) jailbreak_api->UnmutePrisoner(iSlot);
+    utils->HookEvent(g_PLID, "round_prestart", [](const char* szName, IGameEvent* pEvent, bool bDontBroadcast) {
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        if (g_bImmunityGaved[i]) continue;
+        
+        auto pController = CCSPlayerController::FromSlot(i);
+        if (!pController) continue; 
+        
+        uint64_t currentSteamID = pController->m_steamID.Get();
+
+        bool bIsAdmin = (admin_api->IsAdmin(i) && admin_api->HasPermission(i, sAdminPermission.c_str()));
+        bool bIsSteamSame = IsSteamIDSame(i);
+        bool bIsVip = (vip_api->VIP_IsClientVIP(i) && vip_api->VIP_GetClientFeatureBool(i, "jb_mute_immunity"));
+
+
+        if (bIsAdmin || bIsSteamSame || bIsVip) {
+            jailbreak_api->GiveMuteImmunity(i);
+            g_bImmunityGaved[i] = true;
+        }
+    }
+});
+
+    utils->HookEvent(g_PLID,"player_disconnect",[](const char* szName, IGameEvent* pEvent, bool bDontBroadcast){
+        int iSlot = pEvent->GetInt("userid");
+        if (g_bImmunityGaved[iSlot]) {
+            jailbreak_api->RemoveMuteImmunity(iSlot);
+            g_bImmunityGaved[iSlot] = false;
+        }
     });
 
     utils->StartupServer(g_PLID, StartupServer);
 
-    
-    
 }
 
 bool jb_mute_features::Unload(char* error, size_t maxlen) {
@@ -201,4 +223,4 @@ const char* jb_mute_features::GetLicense() { return "Private"; }
 const char* jb_mute_features::GetLogTag() { return "[JB] Mute Features"; }
 const char* jb_mute_features::GetName() { return "[JB] Mute Features"; }
 const char* jb_mute_features::GetURL() { return "https://t.me/niffox_2q"; }
-const char* jb_mute_features::GetVersion() { return "1.0.0"; }
+const char* jb_mute_features::GetVersion() { return "1.0.1"; }
