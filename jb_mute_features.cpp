@@ -38,16 +38,6 @@ bool g_bImmunityGaved[MAX_PLAYERS+1] = {false};
 // HELPERS
 //==========================================
 
-void PlaySlotSound(int iSlot, const char* path){
-    engine->ClientCommand(iSlot,"play %s",path);
-}
-
-void PlaySoundAll(const char* path){
-    for(int i = 0; i < MAX_PLAYERS;i++){
-        engine->ClientCommand(i,"play %s",path);
-    }
-}
-
 std::vector<uint64_t> ParseUInt64List(const char* str) {
     std::vector<uint64_t> result;
     if (!str || str[0] == '\0') return result;
@@ -223,4 +213,4 @@ const char* jb_mute_features::GetLicense() { return "Private"; }
 const char* jb_mute_features::GetLogTag() { return "[JB] Mute Features"; }
 const char* jb_mute_features::GetName() { return "[JB] Mute Features"; }
 const char* jb_mute_features::GetURL() { return "https://t.me/niffox_2q"; }
-const char* jb_mute_features::GetVersion() { return "1.0.1"; }
+const char* jb_mute_features::GetVersion() { return "1.0.2"; }
